@@ -86,8 +86,8 @@ public class NetCQ {
             
                 mapStore.addsrcip(selected_info,data,newsrc,count,Data.srcip_map);
                 mapStore.adddestip(selected_info,data,newdest,count,Data.destip_map);
-                mapStore.addsrcport(selected_info,data,newsrcport,count,Data.srcip_map);
-                mapStore.adddestport(selected_info,data,newdestport,count,Data.destip_map);
+                mapStore.addsrcport(selected_info,data,newsrcport,count,Data.srcport_map);
+                mapStore.adddestport(selected_info,data,newdestport,count,Data.destport_map);
                 mapStore.addlength(selected_info,data,newlength,count,Data.length_map);
                 mapStore.addprotocol(selected_info,data,newprotocol,count,Data.protocol_map);
             
