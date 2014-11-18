@@ -1,8 +1,8 @@
 /*
  * PacketData.java
  * Define PacketData class to collect both TCP and UDP packets as same type objects  
- * Version 1.1
- * 14/11/2014
+ * Version 1.2
+ * 19/11/2014
  */
 
 

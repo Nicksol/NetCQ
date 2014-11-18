@@ -1,8 +1,8 @@
 /*
  * NetCQ.java
  * Main class for packet capturing   
- * Version 1.1
- * 14/11/2014
+ * Version 1.2
+ * 19/11/2014
  */
 
 
@@ -11,6 +11,7 @@ package netcq;
 import jpcap.JpcapCaptor;
 import jpcap.NetworkInterface;
 import jpcap.packet.*;
+
 import java.io.*;
 import java.util.*;
 
@@ -27,7 +28,7 @@ public class NetCQ {
     public static void main(String[] args) {
          
 	capturing();
-        System.out.println("ok");
+        out();
         
     }
 	
@@ -41,9 +42,9 @@ public class NetCQ {
 		
 	System.out.println("________________________\n");
 	
-        choice = Integer.parseInt(getInput("Choose interfaces(0,1,) :"));
+        choice = Integer.parseInt(getInput("Choose interfaces(0,1,) : "));
        
-	captureTime = Integer.parseInt(getInput("Enter the duration of capturing/(ms) :"));
+	captureTime = Integer.parseInt(getInput("Enter the duration of capturing/(ms) : "));
 		
 	System.out.println("Listening on Interface -> "
 				+ array[choice].description);
@@ -52,7 +53,7 @@ public class NetCQ {
         
         try {
             captor = JpcapCaptor.openDevice(array[choice], 65535, false,captureTime);
-            System.out.println("___________captor_____________\n");
+            System.out.println("___________Captured_____________\n");
             captor.setFilter("tcp",true);
         } 
         catch (IOException ioe) {
@@ -60,11 +61,15 @@ public class NetCQ {
             ioe.printStackTrace();
 	}
         
-        
+        //offLine logFile = new offLine();
 	int count = 1;
-        while (count<20) { //only capturing 20 packets
+        while (count<21) { //only capturing 20 packets
             
             Packet info = captor.getPacket();
+            
+            //store to packets to a offline log file
+            //logFile.savingPcap(captor, info,count );
+            
             if (info != null){
             
             
@@ -81,8 +86,7 @@ public class NetCQ {
                 Data data = new Data();
             
                 Data.alldata_map.put(count,selected_info);
-            
-                System.out.println(Data.alldata_map.size());
+           
             
                 mapStore.addsrcip(selected_info,data,newsrc,count,Data.srcip_map);
                 mapStore.adddestip(selected_info,data,newdest,count,Data.destip_map);
@@ -96,30 +100,76 @@ public class NetCQ {
             }
         }
         
+        System.out.println("___________Stored_____________\n");
         
-        //exmple outputs
-        System.out.println("Sourceip Hashmap");
-        System.out.println(Data.srcip_map.keySet());
-        //System.out.println(Data.srcip_map.get("192.168.43.1"));
-        //System.out.println(Data.srcip_map.get("192.168.43.28"));
+    }
+    
+    
+    public static void out(){
+    
+        System.out.println("1.Details of packets through a specific IP address (Src)");
+        System.out.println("2.Details of packets through a specific IP address (Dest)");
+        System.out.println("3.Data of packets from Known SourceIP to DestIP");
+        System.out.println("4.Length of packets through a specific port\n");
+        int qchoice = Integer.parseInt(getInput("Select a query (1,2,..) : "));
         
-        System.out.println("Destinationip Hashmap");
-        System.out.println(Data.destip_map.keySet());
-        //System.out.println(Data.destip_map.get("192.168.43.1"));
-        //System.out.println(Data.destip_map.get("192.168.43.28"));
         
-        System.out.println("Sourceport Hashmap");
-        System.out.println(Data.srcport_map.keySet());
+        if (qchoice == 1){
+            System.out.println("SourceIP Addresses are : ");
+            System.out.printf("%s\n",Data.srcip_map.keySet());
+            String pchoice = (getInput("Enter the SourceIP Address : "));
+            System.out.printf("\n_______Details of packet for Address %s  ________\n\n",pchoice);
+            
+            extract.getpacketnumber(Data.srcip_map, pchoice)   ;    
+           
+        }
+        else if (qchoice == 2){
+            System.out.println("DestinationIP Addresses are : ");
+            System.out.printf("%s\n",Data.destip_map.keySet());
+            String pchoice = (getInput("Enter the DestinationIP Address : "));
+            System.out.printf("\n_______Details of packet for Address %s  ________\n\n",pchoice);
+            
+            extract.getpacketnumber(Data.destip_map, pchoice)   ;  
+          
+        }
+        else if (qchoice == 3){
+            System.out.println("Source IP Addresses are : ");
+            System.out.printf("%s\n",Data.srcip_map.keySet());
+            String srcip = (getInput("Enter the SourceIP Address : "));
+            System.out.println("Destination IP Addresses are : ");
+            System.out.printf("%s\n",Data.destip_map.keySet());
+            String destip = (getInput("Enter the DestinationIP Address : "));
+             
+            List<Integer> ret2 = extract.getpacketsrcdesc(srcip, destip)   ;  
         
-        System.out.println("Destport Hashmap");
-        System.out.println(Data.destport_map.keySet());
-        
-        System.out.println("length Hashmap");
-        System.out.println(Data.length_map.keySet());
-        
-        System.out.println("protocol Hashmap");
-        System.out.println(Data.protocol_map.keySet());
-	
+        }
+        else if (qchoice == 4){
+            System.out.println("Port Numbers are : ");
+            System.out.printf("%s\n",Data.srcport_map.keySet());
+            int pchoice = Integer.parseInt(getInput("Enter the Port number : "));
+            System.out.printf("\n_______Packet lengths for port %s  ________\n\n",pchoice);
+            
+            List<Integer> retl = extract.getpacketlength(Data.srcport_map, pchoice)   ;  
+             
+        }
+        back_exit();
+    
+    }
+    
+    
+    public static void back_exit(){
+            
+            System.out.println("________________________\n");
+            System.out.println("1.Back to quering");
+            System.out.println("2.Exit");
+            int opchoice = Integer.parseInt(getInput("\nSelect an option : "));
+            if(opchoice == 1){
+                out();
+            }
+            else
+               // System.out.println("__________Exit__________\n");
+                System.exit(1);
+            
     }
     
 

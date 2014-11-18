@@ -1,8 +1,8 @@
 /*
  * mapStore.java
  * Define MultivaluedMaps to store details of packets 
- * Version 1.1
- * 14/11/2014
+* Version 1.2
+ * 19/11/2014
  */
 
 
@@ -84,7 +84,6 @@ public class mapStore {
                 List<Integer> temp = new ArrayList<> ();
                 String tempsrc = Data.alldata_map.get(count1).dest_ip1;
                 if(destip_tempmap.containsKey(dest)){
-                
                     for ( String key : Data.destip_map.keySet() ) {
                     
                         if(tempsrc.equals(key)){
@@ -105,14 +104,16 @@ public class mapStore {
          if(!Data.srcport_map.containsKey(packet.src_port1)){
             
             List<Integer> srcport_count = new ArrayList<> ();
+            //System.out.println("newsrcport");
             srcport_count.add(count1);
             Data.srcport_map.put(packet.src_port1,srcport_count);
             }
             else{
+               
                 List<Integer> temp = new ArrayList<> ();
                 int tempport = Data.alldata_map.get(count1).src_port1;
                 if(srcport_tempmap.containsKey(port)){
-                
+                     //System.out.println("oldsrcport");
                     for ( int key : Data.srcport_map.keySet() ) {
                     
                         if(tempport == key){
