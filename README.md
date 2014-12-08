@@ -11,8 +11,9 @@ What is NetCQ?
 Pros
 -----
          High efficiency in data retrieving since usage of normalized hash maps,User friendly
+         Support for IP,ICMP,TCP,UDP,HTTP,FTP,Telnet,SMTP,DNS and NBNS protocols.
          
 Cons
 -----
-         So far only works for "TCP" and "UDP" protocols,Limited number of queries,No feature for offline data mining
+         Limited number of queries,No feature for offline data mining
          
