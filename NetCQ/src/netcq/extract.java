@@ -1,8 +1,8 @@
 /*
  * extract.java
  * Queries for extracting data  
- * Version 1.2
- * 19/11/2014
+ * Version 1.3
+ * 08/12/2014
  */
 
 package netcq;

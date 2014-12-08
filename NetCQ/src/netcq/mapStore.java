@@ -1,8 +1,8 @@
 /*
  * mapStore.java
  * Define MultivaluedMaps to store details of packets 
-* Version 1.2
- * 19/11/2014
+ * Version 1.3
+ * 08/12/2014
  */
 
 
@@ -14,32 +14,64 @@ import jpcap.packet.*;
 
 public class mapStore {
     
-    //convert captured Packet object to PacketData object
+    //convert captured Packet object to PacketData object and find the protocol of the packet
     public static PacketData converting(Packet cap_packet){
          
         PacketData pack = new PacketData();
          
-         if(cap_packet instanceof TCPPacket){
+         if(cap_packet instanceof TCPPacket && (cap_packet instanceof IPPacket) ){
 		TCPPacket tc = (TCPPacket) cap_packet;
                 pack.length1 = (int)tc.length;
                 pack.src_ip1 = tc.src_ip.getHostAddress();
                 pack.src_port1 = tc.src_port;
                 pack.dest_ip1 = tc.dst_ip.getHostAddress();
                 pack.dest_port1 = tc.dst_port;
-                pack.protocol1 = "TCP";
+                pack.protocol1.add("IP");
+                pack.protocol1.add("TCP");
+                if (tc.src_port == 8080)
+                    pack.protocol1.add("HTTP");   
+                else if(tc.src_port == 21)
+                    pack.protocol1.add("FTP");
+                else if(tc.src_port == 23)
+                    pack.protocol1.add("Telnet");
+                else if(tc.src_port == 25)
+                    pack.protocol1.add("SMTP");
+                else
+                    pack.protocol1.add("TCP");
+                
          }
            
-         if(cap_packet instanceof UDPPacket){
+        if(cap_packet instanceof UDPPacket && cap_packet instanceof IPPacket){
 		UDPPacket ud = (UDPPacket) cap_packet;
 		pack.length1 = ud.length;
                 pack.src_ip1 = ud.src_ip.getHostAddress();
                 pack.src_port1 = ud.src_port;
                 pack.dest_ip1 = ud.dst_ip.getHostAddress();
                 pack.dest_port1 = ud.dst_port;
-                pack.protocol1 = "UDP";
+                pack.protocol1.add("IP");
+                pack.protocol1.add("TCP");
+                if(ud.src_port == 53)
+                    pack.protocol1.add("DNS");
+                else if(ud.src_port == 137)
+                    pack.protocol1.add("NBNS");
+                else
+                    pack.protocol1.add("UDP");
+                
+             
         }
-         
-         return pack;    
+       
+        if(cap_packet instanceof ICMPPacket && cap_packet instanceof IPPacket){
+		ICMPPacket icmp = (ICMPPacket) cap_packet;
+		pack.length1 = (int)icmp.length;
+                pack.src_ip1 = icmp.src_ip.getHostAddress();
+                pack.src_port1 = 99999;
+                pack.dest_ip1 = icmp.dst_ip.getHostAddress();
+                pack.dest_port1 = 99999;
+                pack.protocol1.add("ICMP");
+                
+        }
+        
+        return pack;    
     }
 
     
@@ -185,17 +217,19 @@ public class mapStore {
     
     
     //method to insert packetnumbers list to a specific protocol by checking protocol_map hashmap contains that protocol value
-    public static void addprotocol(PacketData packet,Data data,String protocol,int count1,HashMap protocol_tempmap){
-        
-         if(!Data.protocol_map.containsKey(packet.protocol1)){
+    public static void addprotocol(PacketData packet,Data data,List<String> protocol,int count1,HashMap protocol_tempmap){
+         
+         int protocols = packet.protocol1.size();
+         for(int i=0;i<protocols;i++){
+         if(!Data.protocol_map.containsKey(packet.protocol1.get(i))){
             
             List<Integer> protocol_count = new ArrayList<> ();
             protocol_count.add(count1);
-            Data.protocol_map.put(packet.protocol1,protocol_count);
+            Data.protocol_map.put(packet.protocol1.get(i),protocol_count);
             }
             else{
                 List<Integer> temp = new ArrayList<> ();
-                String tempprotocol = Data.alldata_map.get(count1).protocol1;
+                String tempprotocol = Data.alldata_map.get(count1).protocol1.get(i);
                 if(protocol_tempmap.containsKey(protocol)){
                 
                     for ( String key : Data.protocol_map.keySet() ) {
@@ -204,11 +238,12 @@ public class mapStore {
                             
                             temp = Data.protocol_map.get(protocol);
                             protocol_tempmap.put(protocol ,temp.add(count1));
-                            Data.protocol_map.put(packet.protocol1,temp);
+                            Data.protocol_map.put(packet.protocol1.get(i),temp);
                         }
                     }
                 }
             }
+         }
     }
 
 }
